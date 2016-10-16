@@ -122,7 +122,7 @@
                 JSON.stringify(peerConnection.localDescription), '')
               .then((resp) => {
                 console.log("client: received offer", resp);
-                peerConnection.setRemoteDescription(JSON.parse(resp.Answer), console.log, console.log);
+                peerConnection.setRemoteDescription(RTCSessionDescription(JSON.parse(resp.Answer)), console.log, console.log);
               });
           }
         };

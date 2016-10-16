@@ -113,7 +113,7 @@ class Server {
   }
 
   offer(offer, resolve) {
-    offer = JSON.parse(offer.Offer);
+    offer = RTCSessionDescription(JSON.parse(offer.Offer));
     var peerConnection = new RTCPeerConnection(WEBRTC_CONFIG);
 
     peerConnection.ondatachannel = (e) => {
