@@ -93,6 +93,7 @@ class Server {
       const idx = (this.currentPlayerIndex() + 1) % this.state.players.length;
       this.state.turn = this.state.players[idx].name;
     } while (this.currentPlayer().dead);
+    this.move(this.currentPlayer());
     this.broadcastState();
   }
 
@@ -109,7 +110,7 @@ class Server {
   }
 
   offer(offer, resolve) {
-    offer = RTCSessionDescription(JSON.parse(offer.Offer));
+    offer = new RTCSessionDescription(JSON.parse(offer.Offer));
     var peerConnection = new RTCPeerConnection(WEBRTC_CONFIG);
 
     peerConnection.ondatachannel = (e) => {
@@ -140,6 +141,42 @@ class Server {
 
   currentPlayer() {
     return this.state.players[this.currentPlayerIndex()];
+  }
+
+  rollDie(sides) {
+    return 1 + Math.floor(Math.random()*sides);
+  }
+
+  move(player) {
+    const oldArea = player.area;
+    let area = oldArea;
+    while (area == oldArea) {
+      const roll = this.rollDie(4) + this.rollDie(6);
+      switch (roll) {
+        case 2:
+        case 3:
+          area = "Hermit's Cabin";
+          break;
+        case 4:
+        case 5:
+        case 7:
+          area = "Underworld Gate";
+          break;
+        case 6:
+          area = "Church";
+          break;
+        case 8:
+          area = "Cemetery";
+          break;
+        case 9:
+          area = "Weird Woods";
+          break;
+        case 10:
+          area = "Erstwhile Altar";
+          break;
+      }
+    }
+    player.area = area;
   }
 
   setupChan(dataChannel) {
