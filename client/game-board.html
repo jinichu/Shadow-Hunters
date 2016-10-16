@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="game-board">
   <style>
@@ -25,43 +26,40 @@
       padding: 5px;
       display: inline-block;
     }
-    [disabled] {
-      opacity: 0.5;
-      pointer-events: none;
-    }
   </style>
 
   <template>
-    <template is="dom-if" if="[[state.winners]]">
-      <div id="winners">
-        <h2>Winners</h2>
-        <template is="dom-repeat" items="[[state.winners]]">
-          <span "[[item.color]]">[[item.name]]</span>
-        </template>
-      </div>
-    </template>
-    <div disabled$="[[state.winners]]">
-      <div id="damageBoard">
-        <template is="dom-repeat" items="[[health]]">
-          <div>
-            <h2>[[item.healthLevel]]</h2>
-            <template is="dom-repeat" items="[[item.players]]">
-              <span style="color:[[item.color]]">[[item.name]]</span>
-            </template>
-          </div>
-        </template>
-      </div>
-      <div id="areaBoard">
-        <template is="dom-repeat" items="[[area]]">
-          <div>
-            <h2>[[item.areaName]]</h2>
-            <template is="dom-repeat" items="[[item.players]]">
-              <span "[[item.color]]">[[item.name]]</span>
-            </template>
-          </div>
-        </template>
-      </div>
+    <div id="damageBoard">
+      <template is="dom-repeat" items="[[health]]">
+        <div>
+          <h2>[[item.healthLevel]]</h2>
+          <template is="dom-repeat" items="[[item.players]]">
+            <span style="color:[[item.color]]">[[item.name]]</span>
+          </template>
+        </div>
+      </template>
     </div>
+    <div id="areaBoard">
+      <template is="dom-repeat" items="[[area]]">
+        <div>
+          <h2>[[item.areaName]]</h2>
+          <template is="dom-repeat" items="[[item.players]]">
+            <span "[[item.color]]">[[item.name]]</span>
+          </template>
+        </div>
+      </template>
+    </div>
+
+    <paper-dialog id="winners" modal>
+      <h2>Winners</h2>
+      <template is="dom-repeat" items="[[state.winners]]">
+        <span "[[item.color]]">[[item.name]]</span>
+      </template>
+
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Play Again</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -78,7 +76,14 @@
       observers: [
         'computeHealth(state.*)',
         'computeAreas(state.*)',
+        'showWinners(state.winners)',
       ],
+
+      showWinners: function() {
+        if (this.state.winners) {
+          this.$.winners.open();
+        }
+      },
 
       computeAreas: function() {
 
