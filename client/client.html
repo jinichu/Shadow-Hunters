@@ -1,17 +1,60 @@
 <link rel="import" href="game-board.html">
+<link rel="import" href="../bower_components/webrtc-lobby-elements/webrtc-lobby-elements.html">
+
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+
 
 <dom-module id="main-client">
   <template>
-		<h1>SH!</h1>
-    <p>You are: <span>[[currentPlayer]]</span>.</p>
-    <template is="dom-if" if="[[isMyTurn]]">
-      <p>It's your turn!</p>
+    <h1>SH!</h1>
+    <template is="dom-if" if="[[started]]">
+      <p>You are: <span>[[currentPlayer]]</span>.</p>
+      <template is="dom-if" if="[[isMyTurn]]">
+        <p>It's your turn!</p>
+        <paper-button raised on-tap="endTurn">End Turn</paper-button>
+      </template>
+      <template is="dom-if" if="[[!isMyTurn]]">
+        <p>It is <span>[[state.turn]]</span>'s turn.</p>
+      </template>
+
+      <game-board state="[[state]]"></game-board>
     </template>
-    <template is="dom-if" if="[[!isMyTurn]]">
-      <p>It is <span>[[state.turn]]</span>'s turn.</p>
+
+    <template is="dom-if" if="[[!started]]">
+      <h2>Join or Start a Game</h2>
+      <paper-button raised on-tap="host">Host</paper-button>
+
+      <p>Enter host token:</p>
+
+      <paper-input id="tokenInput"
+                   value="{{token}}"
+                   spellcheck="false"
+                   auto-validate required
+                   invalid="{{invalid}}"
+                   minlength="10" maxlength="10">
+      </paper-input>
+
+      <paper-button raised on-tap="join" disabled$="[[invalid]]">
+        JOIN
+      </paper-button>
+
+      <webrtc-lobby-list id="lobbyList"
+                         url="wss://fn.lc/lobby"
+                         service="sh">
+      </webrtc-lobby-list>
     </template>
-    <game-board state="[[state]]"></game-board>
-	</template>
+    <template is="dom-if" if="[[server]]">
+      <p>Server ID (enter this on the clients): [[serverToken]]</p>
+      <webrtc-lobby-host id="lobby"
+                         url="wss://fn.lc/lobby"
+                         service="sh"
+                         name="SH"
+                         token="{{serverToken}}"
+                         creator="unknown"
+                         hidden="true">
+      </webrtc-lobby-host>
+    </template>
+  </template>
 
   <script>
     Polymer({
@@ -20,27 +63,94 @@
       ready: function() {
         this.currentPlayer = "Catherine";
 
-        this.state = {
-          turn: "Catherine",
-          players: [
-            {
-              name: "Catherine",
-              damage: 4
-            },
-            {
-              name: "Bob",
-              damage: 6
-            }
-          ],
-        };
+        this.started = false;
       },
 
       observers: [
         'computeIsMyTurn(currentPlayer, state.turn)',
       ],
 
+      listeners: {
+        'action': 'handleAction',
+      },
+
+      endTurn: function() {
+        this.handleAction(null, "endTurn");
+      },
+
+      handleAction: function(e, detail) {
+        this.conn.sendJSON({op: "action", action: detail});
+      },
+
       computeIsMyTurn: function(current, turn) {
         this.isMyTurn = current === turn;
+      },
+
+      host: function() {
+        this.started = true;
+        this.server = new Server();
+        setTimeout(() => {
+          this.querySelector("#lobby").offer = (offer, resolve) => {
+            this.server.offer(offer, resolve);
+          };
+        },1);
+        const serverChan = new FakeDataChannel();
+        this.server.setupChan(serverChan);
+        const localChan = new FakeDataChannel(serverChan);
+        this.setupChan(localChan);
+      },
+      join: function() {
+        var peerConnection = new RTCPeerConnection(WEBRTC_CONFIG);
+
+        // Establish your peer connection using your signaling channel here
+        var dataChannel = peerConnection.createDataChannel("state", dataChannelOptions);
+
+        this.setupChan(dataChannel);
+
+        console.log("client: creating offer");
+
+        peerConnection.onicecandidate = (ev) => {
+          if (!ev.candidate) {
+            this.querySelector("#lobbyList").connect(this.token,
+                JSON.stringify(peerConnection.localDescription), '')
+              .then((resp) => {
+                console.log("client: received offer", resp);
+                peerConnection.setRemoteDescription(JSON.parse(resp.Answer), console.log, console.log);
+              });
+          }
+        };
+
+        peerConnection.createOffer((offer) => {
+          peerConnection.setLocalDescription(offer);
+          console.log("client: created offer", offer);
+        }, (error) => console.log(error));
+      },
+      setupChan: function(dataChannel) {
+        dataChannel.onerror = (error) => {
+          console.log("client: Data Channel Error:", error);
+        };
+
+        dataChannel.onmessage = (event) => {
+          const data = JSON.parse(event.data);
+          console.log("client: Got Data Channel Message:", data);
+          if (data.op === "state") {
+            this.state = data.state;
+          }
+        };
+
+        dataChannel.onopen = () => {
+          console.log("client: connection open");
+          this.conn = dataChannel;
+          this.started = true;
+        };
+
+        dataChannel.onclose = () => {
+          console.log("client: The Data Channel is Closed");
+        };
+
+        dataChannel.sendJSON = (json) => {
+          dataChannel.send(JSON.stringify(json));
+        };
       }
     });
   </script>

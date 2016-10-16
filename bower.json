@@ -19,6 +19,10 @@
     "webcomponentsjs": "^0.7.22",
     "polymer": "^1.7.0",
     "iron-elements": "^1.0.10",
-    "paper-elements": "^1.0.7"
+    "paper-elements": "^1.0.7",
+    "webrtc-lobby-elements": "^1.0.3"
+  },
+  "resolutions": {
+    "polymer": "^1.7.0"
   }
 }
