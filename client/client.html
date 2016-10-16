@@ -9,10 +9,13 @@
     <h1>SH!</h1>
     <template is="dom-if" if="[[started]]">
       <p>You are: <span>[[currentPlayer]]</span>.</p>
+      <paper-button raised on-tap="reveal">Reveal</paper-button>
+
       <template is="dom-if" if="[[isMyTurn]]">
         <p>It's your turn!</p>
         <paper-button raised on-tap="endTurn">End Turn</paper-button>
       </template>
+
       <template is="dom-if" if="[[!isMyTurn]]">
         <p>It is <span>[[state.turn]]</span>'s turn.</p>
       </template>
@@ -61,7 +64,7 @@
       is: 'main-client',
 
       ready: function() {
-        this.currentPlayer = "Catherine";
+        this.currentPlayer = "";
 
         this.started = false;
       },
@@ -76,6 +79,10 @@
 
       endTurn: function() {
         this.handleAction(null, "endTurn");
+      },
+
+      reveal: function() {
+        this.handleAction(null, "reveal");
       },
 
       handleAction: function(e, detail) {
@@ -135,6 +142,7 @@
           console.log("client: Got Data Channel Message:", data);
           if (data.op === "state") {
             this.state = data.state;
+            this.currentPlayer = data.player.name;
           }
         };
 

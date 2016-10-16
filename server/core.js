@@ -11,13 +11,13 @@ const CHARACTERS = {
       const othersDead = false;
       for (let player of state.players) {
         if (player.name === "Catherine") {
-            catherineDead = player.isDead;
+            catherineDead = player.dead;
         } else {
-          othersDead = player.isDead;
+          othersDead = player.dead;
         }
       }
 
-      return cDead && !othersDead;
+      return catherineDead && !othersDead;
     },
   },
   "Bob": {
@@ -47,33 +47,38 @@ const dataChannelOptions = {
 class Server {
   constructor() {
     this.state = {
-      turn: "Catherine",
-      players: [
-      {
-        name: "Catherine",
-        damage: 4,
-        area: "Cemetery",
-        isDead: true,
-        color: "yellow"
-      },
-      {
-        name: "Bob",
-        damage: 6,
-        area: "Underworld Gate",
-        isDead: false,
-        color: "red"
-      }
-      ],
+      turn: "",
+      players: [],
     };
 
     this.connections = [];
   }
 
-  genStateCommand() {
+  genStateCommand(player) {
     return {
       op: "state",
-      state: this.state
+      state: this.state,
+      player: player
     };
+  }
+
+  pickUnusedCharacter() {
+    const potential = Object.keys(CHARACTERS);
+    const taken = {};
+    for (let p of this.state.players) {
+      taken[p.name] = true;
+    }
+    if (this.state.players.length >= potential) {
+      throw "more players than characters";
+    }
+    let player = null;
+    while (!player) {
+      const pot = potential[Math.floor(Math.random()*potential.length)];
+      if (!taken[pot]) {
+        player = pot;
+      }
+    }
+    return player;
   }
 
   updateDead() {
@@ -92,7 +97,9 @@ class Server {
   }
 
   broadcastState() {
-    this.broadcast(this.genStateCommand());
+    for (let conn of this.connections) {
+      conn.sendJSON(this.genStateCommand(conn.player));
+    }
   }
 
   broadcast(obj) {
@@ -154,7 +161,19 @@ class Server {
     dataChannel.onopen = () => {
       this.connections.push(dataChannel);
       console.log("server: connection open");
-      dataChannel.sendJSON(this.genStateCommand());
+      const char = this.pickUnusedCharacter();
+      const player = {
+        name: char,
+        damage: 0,
+        area: "Underworld Gate",
+        color: "red"
+      };
+      dataChannel.player = player;
+      this.state.players.push(player);
+      if (!this.state.turn) {
+        this.state.turn = char;
+      }
+      this.broadcastState();
     };
 
     dataChannel.onclose = () => {
