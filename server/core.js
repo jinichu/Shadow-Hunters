@@ -4,20 +4,16 @@ if (!window.RTCPeerConnection) {
 
 const CHARACTERS = {
   "Catherine": {
-    health: 10,
+    health: 11,
     faction: "Neutral",
     winCondition: (player, state) => {
-      const cDead = false;
+      const catherineDead = false;
       const othersDead = false;
       for (let player of state.players) {
         if (player.name === "Catherine") {
-          if (player.dead) {
-            cDead = true;
-          }
+            catherineDead = player.isDead;
         } else {
-          if (player.dead) {
-            othersDead = true;
-          }
+          othersDead = player.isDead;
         }
       }
 
@@ -55,11 +51,17 @@ class Server {
       players: [
       {
         name: "Catherine",
-        damage: 4
+        damage: 4,
+        area: "Cemetery",
+        isDead: true,
+        color: "yellow"
       },
       {
         name: "Bob",
-        damage: 6
+        damage: 6,
+        area: "Underworld Gate",
+        isDead: false,
+        color: "red"
       }
       ],
     };
