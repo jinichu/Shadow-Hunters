@@ -1,11 +1,47 @@
+<link rel="import" href="game-board.html">
+
 <dom-module id="main-client">
   <template>
-		<h1>Hello there!</h1>
+		<h1>SH!</h1>
+    <p>You are: <span>[[currentPlayer]]</span>.</p>
+    <template is="dom-if" if="[[isMyTurn]]">
+      <p>It's your turn!</p>
+    </template>
+    <template is="dom-if" if="[[!isMyTurn]]">
+      <p>It is <span>[[state.turn]]</span>'s turn.</p>
+    </template>
+    <game-board state="[[state]]"></game-board>
 	</template>
 
   <script>
     Polymer({
-      is: 'main-client'
+      is: 'main-client',
+
+      ready: function() {
+        this.currentPlayer = "Catherine";
+
+        this.state = {
+          turn: "Catherine",
+          players: [
+            {
+              name: "Catherine",
+              damage: 4
+            },
+            {
+              name: "Bob",
+              damage: 6
+            }
+          ],
+        };
+      },
+
+      observers: [
+        'computeIsMyTurn(currentPlayer, state.turn)',
+      ],
+
+      computeIsMyTurn: function(current, turn) {
+        this.isMyTurn = current === turn;
+      }
     });
   </script>
 </dom-module>

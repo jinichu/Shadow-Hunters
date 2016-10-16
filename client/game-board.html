@@ -1,0 +1,70 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<dom-module id="game-board">
+  <style>
+    #players {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    #players > div {
+      border: 1px solid black;
+      margin: 16px;
+      padding: 5px;
+      display: inline-block;
+    }
+  </style>
+
+  <template>
+    <h1>Board</h1>
+    <div id="players">
+      <template is="dom-repeat" items="[[health]]">
+        <div>
+          <h2>[[item.healthLevel]]</h2>
+
+          <template is="dom-repeat" items="[[item.players]]">
+            <span>[[item.name]]</span>
+          </template>
+        </div>
+      </template>
+    </div>
+	</template>
+
+  <script>
+    Polymer({
+      is: 'game-board',
+
+      properties: {
+        state: {
+          type: Object,
+        },
+      },
+
+      observers: [
+        'computeHealth(state.*)',
+      ],
+
+      computeAreas: function() {
+        const areas = ["Black", "Green"];
+        for (let area of areas) {
+        }
+      },
+
+      computeHealth: function() {
+        const healths = [];
+
+        for (let i=1; i<=14; i++) {
+          healths.push({
+            healthLevel: i,
+            players: []
+          });
+        }
+
+        for (let player of this.state.players) {
+          healths[player.damage-1].players.push(player);
+        }
+
+        this.health = healths;
+      }
+    });
+  </script>
+</dom-module>

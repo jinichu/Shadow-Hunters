@@ -1,0 +1,34 @@
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+
+<dom-module id="duck-whisperer">
+  <style>
+    :host {
+      color: red;
+    }
+    paper-button {
+      background-color: blue;
+    }
+  </style>
+
+  <template>
+		<h1>The Duck Whisperer</h1>
+    <p>Ducks: [[duck]]</p>
+    <paper-button raised on-tap="incDuck">Duuucks!</button>
+	</template>
+
+  <script>
+    Polymer({
+      is: 'duck-whisperer',
+      properties: {
+        duck: {
+          value: 10,
+          notify: true,
+        }
+      },
+
+      incDuck: function() {
+        this.duck++;
+      }
+    });
+  </script>
+</dom-module>
