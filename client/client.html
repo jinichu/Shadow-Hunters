@@ -1,6 +1,6 @@
 <link rel="import" href="game-board.html">
 <link rel="import" href="../bower_components/webrtc-lobby-elements/webrtc-lobby-elements.html">
-O
+
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 
 
@@ -11,10 +11,12 @@ O
       <p>You are: <span>[[currentPlayer]]</span>.</p>
       <template is="dom-if" if="[[isMyTurn]]">
         <p>It's your turn!</p>
+        <paper-button raised on-tap="endTurn">End Turn</paper-button>
       </template>
       <template is="dom-if" if="[[!isMyTurn]]">
         <p>It is <span>[[state.turn]]</span>'s turn.</p>
       </template>
+
       <game-board state="[[state]]"></game-board>
     </template>
 
@@ -67,6 +69,18 @@ O
       observers: [
         'computeIsMyTurn(currentPlayer, state.turn)',
       ],
+
+      listeners: {
+        'action': 'handleAction',
+      },
+
+      endTurn: function() {
+        this.handleAction(null, "endTurn");
+      },
+
+      handleAction: function(e, detail) {
+        this.conn.sendJSON({op: "action", action: detail});
+      },
 
       computeIsMyTurn: function(current, turn) {
         this.isMyTurn = current === turn;
@@ -126,11 +140,16 @@ O
 
         dataChannel.onopen = () => {
           console.log("client: connection open");
+          this.conn = dataChannel;
           this.started = true;
         };
 
         dataChannel.onclose = () => {
           console.log("client: The Data Channel is Closed");
+        };
+
+        dataChannel.sendJSON = (json) => {
+          dataChannel.send(JSON.stringify(json));
         };
       }
     });

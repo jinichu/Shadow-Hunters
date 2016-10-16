@@ -6,7 +6,7 @@ const CHARACTERS = {
   "Catherine": {
     health: 10,
     faction: "Neutral",
-    winCondition: (state) => {
+    winCondition: (player, state) => {
       const cDead = false;
       const othersDead = false;
       for (let player of state.players) {
@@ -24,7 +24,13 @@ const CHARACTERS = {
       return cDead && !othersDead;
     },
   },
-}
+  "Bob": {
+    health: 11,
+    faction: "Neutral",
+    winCondition: (player, state) => {
+    }
+  }
+};
 
 const WEBRTC_CONFIG = {
   iceServers: [
@@ -68,6 +74,25 @@ class Server {
     };
   }
 
+  updateDead() {
+    for (let player of this.state.players) {
+      player.dead = player.damage >= CHARACTERS[player.name].health;
+    }
+  }
+
+  endTurn() {
+    this.updateDead();
+    do {
+      const idx = (this.currentPlayerIndex() + 1) % this.state.players.length;
+      this.state.turn = this.state.players[idx].name;
+    } while (this.currentPlayer().dead);
+    this.broadcastState();
+  }
+
+  broadcastState() {
+    this.broadcast(this.genStateCommand());
+  }
+
   broadcast(obj) {
     for (let conn of this.connections) {
       conn.sendJSON(obj);
@@ -95,6 +120,19 @@ class Server {
     }, (error) => console.log(error));
   }
 
+  currentPlayerIndex() {
+    for (let i = 0; i<this.state.players.length; i++) {
+      if (this.state.players[i].name === this.state.turn) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  currentPlayer() {
+    return this.state.players[this.currentPlayerIndex()];
+  }
+
   setupChan(dataChannel) {
     // Establish your peer connection using your signaling channel here
     dataChannel.onerror = (error) => {
@@ -102,7 +140,13 @@ class Server {
     };
 
     dataChannel.onmessage = (event) => {
+      const data = JSON.parse(event.data);
       console.log("server: Got Data Channel Message:", event.data);
+      if (data.op === "action") {
+        if (data.action === "endTurn") {
+          this.endTurn();
+        }
+      }
     };
 
     dataChannel.onopen = () => {
