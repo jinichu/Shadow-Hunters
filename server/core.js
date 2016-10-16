@@ -130,17 +130,23 @@ class Server {
     }, (error) => console.log(error));
   }
 
-  currentPlayerIndex() {
+  getPlayer() {
+  }
+
+  currentPlayerIndex(name) {
+    if (!name) {
+      name = this.state.turn;
+    }
     for (let i = 0; i<this.state.players.length; i++) {
-      if (this.state.players[i].name === this.state.turn) {
+      if (this.state.players[i].name === name) {
         return i;
       }
     }
     return -1;
   }
 
-  currentPlayer() {
-    return this.state.players[this.currentPlayerIndex()];
+  currentPlayer(name) {
+    return this.state.players[this.currentPlayerIndex(name)];
   }
 
   rollDie(sides) {
@@ -192,6 +198,14 @@ class Server {
         if (data.action === "endTurn") {
           this.endTurn();
         }
+      } else if (data.op === "attack") {
+        const p = this.currentPlayer(data.player);
+        p.damage += Math.abs(this.rollDie(6)-this.rollDie(4));
+        const maxDamage = CHARACTERS[p.name].health;
+        if (p.damage > maxDamage) {
+          p.damage = maxDamage;
+        }
+        this.broadcastState();
       }
     };
 

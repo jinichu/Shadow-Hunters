@@ -85,6 +85,10 @@
         this.handleAction(null, "endTurn");
       },
 
+      attack: function(e) {
+        this.conn.sendJSON({op: "attack", player: e.model.item});
+      },
+
       getPlayer: function() {
         for (let p of this.state.players) {
           if (p.name === this.currentPlayer) {
