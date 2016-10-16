@@ -1,0 +1,24 @@
+{
+  "name": "sh",
+  "homepage": "https://github.com/d4l3k/sh",
+  "authors": [
+    "Tristan Rice <rice@fn.lc>"
+  ],
+  "description": "",
+  "main": "",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "webcomponentsjs": "^0.7.22",
+    "polymer": "^1.7.0",
+    "iron-elements": "^1.0.10",
+    "paper-elements": "^1.0.7"
+  }
+}
