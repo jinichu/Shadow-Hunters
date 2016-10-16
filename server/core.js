@@ -124,3 +124,17 @@ class Server {
     };
   }
 }
+
+function FakeDataChannel(other) {
+  if (other) {
+    this.remote = other;
+    other.remote = this;
+    setTimeout(() => {
+      this.onopen();
+      this.remote.onopen();
+    },1);
+  }
+}
+FakeDataChannel.prototype.send = function(data) {
+  this.remote.onmessage({data: data});
+}

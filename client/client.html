@@ -80,6 +80,10 @@ O
             this.server.offer(offer, resolve);
           };
         },1);
+        const serverChan = new FakeDataChannel();
+        this.server.setupChan(serverChan);
+        const localChan = new FakeDataChannel(serverChan);
+        this.setupChan(localChan);
       },
       join: function() {
         var peerConnection = new RTCPeerConnection(WEBRTC_CONFIG);
@@ -87,6 +91,27 @@ O
         // Establish your peer connection using your signaling channel here
         var dataChannel = peerConnection.createDataChannel("state", dataChannelOptions);
 
+        this.setupChan(dataChannel);
+
+        console.log("client: creating offer");
+
+        peerConnection.onicecandidate = (ev) => {
+          if (!ev.candidate) {
+            this.querySelector("#lobbyList").connect(this.token,
+                JSON.stringify(peerConnection.localDescription), '')
+              .then((resp) => {
+                console.log("client: received offer", resp);
+                peerConnection.setRemoteDescription(JSON.parse(resp.Answer), console.log, console.log);
+              });
+          }
+        };
+
+        peerConnection.createOffer((offer) => {
+          peerConnection.setLocalDescription(offer);
+          console.log("client: created offer", offer);
+        }, (error) => console.log(error));
+      },
+      setupChan: function(dataChannel) {
         dataChannel.onerror = (error) => {
           console.log("client: Data Channel Error:", error);
         };
@@ -107,24 +132,6 @@ O
         dataChannel.onclose = () => {
           console.log("client: The Data Channel is Closed");
         };
-
-        console.log("client: creating offer");
-
-        peerConnection.onicecandidate = (ev) => {
-          if (!ev.candidate) {
-            this.querySelector("#lobbyList").connect(this.token,
-                JSON.stringify(peerConnection.localDescription), '')
-              .then((resp) => {
-                console.log("client: received offer", resp);
-                peerConnection.setRemoteDescription(JSON.parse(resp.Answer), console.log, console.log);
-              });
-          }
-        };
-
-        peerConnection.createOffer((offer) => {
-          peerConnection.setLocalDescription(offer);
-          console.log("client: created offer", offer);
-        }, (error) => console.log(error));
       }
     });
   </script>
