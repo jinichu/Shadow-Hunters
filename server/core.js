@@ -123,6 +123,7 @@ class Server {
       const idx = (this.currentPlayerIndex() + 1) % this.state.players.length;
       this.state.turn = this.state.players[idx].name;
     } while (this.currentPlayer().dead);
+    this.move(this.currentPlayer());
     this.broadcastState();
   }
 
@@ -159,17 +160,59 @@ class Server {
     }, (error) => console.log(error));
   }
 
-  currentPlayerIndex() {
+  getPlayer() {
+  }
+
+  currentPlayerIndex(name) {
+    if (!name) {
+      name = this.state.turn;
+    }
     for (let i = 0; i<this.state.players.length; i++) {
-      if (this.state.players[i].name === this.state.turn) {
+      if (this.state.players[i].name === name) {
         return i;
       }
     }
     return -1;
   }
 
-  currentPlayer() {
-    return this.state.players[this.currentPlayerIndex()];
+  currentPlayer(name) {
+    return this.state.players[this.currentPlayerIndex(name)];
+  }
+
+  rollDie(sides) {
+    return 1 + Math.floor(Math.random()*sides);
+  }
+
+  move(player) {
+    const oldArea = player.area;
+    let area = oldArea;
+    while (area == oldArea) {
+      const roll = this.rollDie(4) + this.rollDie(6);
+      switch (roll) {
+        case 2:
+        case 3:
+          area = "Hermit's Cabin";
+          break;
+        case 4:
+        case 5:
+        case 7:
+          area = "Underworld Gate";
+          break;
+        case 6:
+          area = "Church";
+          break;
+        case 8:
+          area = "Cemetery";
+          break;
+        case 9:
+          area = "Weird Woods";
+          break;
+        case 10:
+          area = "Erstwhile Altar";
+          break;
+      }
+    }
+    player.area = area;
   }
 
   setupChan(dataChannel) {
@@ -185,6 +228,14 @@ class Server {
         if (data.action === "endTurn") {
           this.endTurn();
         }
+      } else if (data.op === "attack") {
+        const p = this.currentPlayer(data.player);
+        p.damage += Math.abs(this.rollDie(6)-this.rollDie(4));
+        const maxDamage = CHARACTERS[p.name].health;
+        if (p.damage > maxDamage) {
+          p.damage = maxDamage;
+        }
+        this.broadcastState();
       }
     };
 

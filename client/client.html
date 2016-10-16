@@ -13,6 +13,9 @@
 
       <template is="dom-if" if="[[isMyTurn]]">
         <p>It's your turn!</p>
+        <template is="dom-repeat" items="[[attackable]]">
+          <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
+        </template>
         <paper-button raised on-tap="endTurn">End Turn</paper-button>
       </template>
 
@@ -71,6 +74,7 @@
 
       observers: [
         'computeIsMyTurn(currentPlayer, state.turn)',
+        'computeAttackable(currentPlayer, state.*)',
       ],
 
       listeners: {
@@ -81,12 +85,39 @@
         this.handleAction(null, "endTurn");
       },
 
+      attack: function(e) {
+        this.conn.sendJSON({op: "attack", player: e.model.item});
+      },
+
+      getPlayer: function() {
+        for (let p of this.state.players) {
+          if (p.name === this.currentPlayer) {
+            return p;
+          }
+        }
+        return null;
+      },
+
       reveal: function() {
         this.handleAction(null, "reveal");
       },
 
       handleAction: function(e, detail) {
         this.conn.sendJSON({op: "action", action: detail});
+      },
+
+      computeAttackable: function() {
+        const p = this.getPlayer();
+        if (!p) {
+          return;
+        }
+        const attackable = [];
+        for (let p2 of this.state.players) {
+          if (p != p2 && p.area == p2.area) {
+            attackable.push(p2.name);
+          }
+        }
+        this.attackable = attackable;
       },
 
       computeIsMyTurn: function(current, turn) {

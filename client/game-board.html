@@ -51,6 +51,7 @@
   </template>
 
   <script>
+    const areaNames = ["Hermit's Cabin", "Underworld Gate", "Church", "Cemetery", "Weird Woods", "Erstwhile Altar"];
     Polymer({
       is: 'game-board',
 
@@ -66,7 +67,6 @@
       ],
 
       computeAreas: function() {
-        const areaNames = ["Hermit's Cabin", "Underworld Gate", "Church", "Cemetery", "Weird Woods", "Erstwhile Altar"];
 
         const areas = [];
         const areasMap = {};
