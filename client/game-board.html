@@ -52,7 +52,7 @@
       computeHealth: function() {
         const healths = [];
 
-        for (let i=1; i<=14; i++) {
+        for (let i=0; i<=14; i++) {
           healths.push({
             healthLevel: i,
             players: []
@@ -60,7 +60,7 @@
         }
 
         for (let player of this.state.players) {
-          healths[player.damage-1].players.push(player);
+          healths[player.damage].players.push(player);
         }
 
         this.health = healths;
