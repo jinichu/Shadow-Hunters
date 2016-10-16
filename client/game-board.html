@@ -2,12 +2,25 @@
 
 <dom-module id="game-board">
   <style>
-    #players {
+    #damageBoard {
       display: flex;
       flex-wrap: wrap;
     }
-    #players > div {
+    #damageBoard > div {
       border: 1px solid black;
+      margin: 16px;
+      padding: 5px;
+      display: inline-block;
+    }
+    #player {
+      color: red;
+    }
+    #areaBoard {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    #areaBoard > div {
+      border: 3px solid black;
       margin: 16px;
       padding: 5px;
       display: inline-block;
@@ -15,14 +28,22 @@
   </style>
 
   <template>
-    <h1>Board</h1>
-    <div id="players">
+    <div id="damageBoard">
       <template is="dom-repeat" items="[[health]]">
         <div>
           <h2>[[item.healthLevel]]</h2>
-
           <template is="dom-repeat" items="[[item.players]]">
-            <span>[[item.name]]</span>
+            <span id="player">[[item.name]]</span>
+          </template>
+        </div>
+      </template>
+    </div>
+    <div id="areaBoard">
+      <template is="dom-repeat" items="[[area]]">
+        <div>
+          <h2>[[item.areaName]]</h2>
+          <template is="dom-repeat" items="[[item.players]]">
+            <span id="player">[[item.name]]</span>
           </template>
         </div>
       </template>
@@ -41,12 +62,27 @@
 
       observers: [
         'computeHealth(state.*)',
+        'computeAreas(state.*)',
       ],
 
       computeAreas: function() {
-        const areas = ["Black", "Green"];
-        for (let area of areas) {
+        const areaNames = ["Hermit's Cabin", "Underworld Gate", "Church", "Cemetery", "Weird Woods", "Erstwhile Altar"];
+
+        const areas = [];
+        const areasMap = {};
+        for (let name of areaNames) {
+          const area = {
+            areaName: name,
+            players: []
+          };
+          areas.push(area);
+          areasMap[name] = area;
         }
+
+        for (let player of this.state.players){
+            areasMap[player.area].players.push(player);
+        }
+        this.area = areas;
       },
 
       computeHealth: function() {
