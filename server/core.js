@@ -2,6 +2,8 @@ if (!window.RTCPeerConnection) {
   window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
 }
 
+const COLORS = ["black", "purple", "red", "yellow", "blue", "green", "pink", "orange"];
+
 const CHARACTERS = {
   "Catherine": {
     health: 11,
@@ -16,14 +18,24 @@ const CHARACTERS = {
           othersDead = player.dead;
         }
       }
-
       return catherineDead && !othersDead;
-    },
+    }
   },
   "Bob": {
     health: 11,
     faction: "Neutral",
     winCondition: (player, state) => {
+    }
+  },
+  "Vampire": {
+    health: 13,
+    faction: "Shadow",
+    winCondition: (player, state) => {
+      for (let player of state.players){
+        if (CHARACTERS[player.name].faction === "Hunter"){
+
+        }
+      }
     }
   }
 };
@@ -81,6 +93,24 @@ class Server {
     return player;
   }
 
+  pickUnusedColor() {
+    const taken = {};
+    for (let p of this.state.players) {
+      taken[p.color] = true;
+    }
+    if (this.state.players.length >= COLORS.length) {
+      throw "more players than characters";
+    }
+    let player = null;
+    while (!player) {
+      const potentialColor = COLORS[Math.floor(Math.random()*COLORS.length)];
+      if (!taken[potentialColor]) {
+        player = potentialColor;
+      }
+    }
+    return player;
+  }
+
   updateDead() {
     for (let player of this.state.players) {
       player.dead = player.damage >= CHARACTERS[player.name].health;
@@ -109,7 +139,7 @@ class Server {
   }
 
   offer(offer, resolve) {
-    offer = RTCSessionDescription(JSON.parse(offer.Offer));
+    offer = new RTCSessionDescription(JSON.parse(offer.Offer));
     var peerConnection = new RTCPeerConnection(WEBRTC_CONFIG);
 
     peerConnection.ondatachannel = (e) => {
@@ -162,11 +192,12 @@ class Server {
       this.connections.push(dataChannel);
       console.log("server: connection open");
       const char = this.pickUnusedCharacter();
+      const playerColor = this.pickUnusedColor();
       const player = {
         name: char,
         damage: 0,
         area: "Underworld Gate",
-        color: "red"
+        color: playerColor
       };
       dataChannel.player = player;
       this.state.players.push(player);
