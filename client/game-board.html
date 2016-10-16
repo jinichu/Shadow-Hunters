@@ -25,28 +25,42 @@
       padding: 5px;
       display: inline-block;
     }
+    [disabled] {
+      opacity: 0.5;
+      pointer-events: none;
+    }
   </style>
 
   <template>
-    <div id="damageBoard">
-      <template is="dom-repeat" items="[[health]]">
-        <div>
-          <h2>[[item.healthLevel]]</h2>
-          <template is="dom-repeat" items="[[item.players]]">
-            <span style="color:[[item.color]]">[[item.name]]</span>
-          </template>
-        </div>
-      </template>
-    </div>
-    <div id="areaBoard">
-      <template is="dom-repeat" items="[[area]]">
-        <div>
-          <h2>[[item.areaName]]</h2>
-          <template is="dom-repeat" items="[[item.players]]">
-            <span "[[item.color]]">[[item.name]]</span>
-          </template>
-        </div>
-      </template>
+    <template is="dom-if" if="[[state.winners]]">
+      <div id="winners">
+        <h2>Winners</h2>
+        <template is="dom-repeat" items="[[state.winners]]">
+          <span "[[item.color]]">[[item.name]]</span>
+        </template>
+      </div>
+    </template>
+    <div disabled$="[[state.winners]]">
+      <div id="damageBoard">
+        <template is="dom-repeat" items="[[health]]">
+          <div>
+            <h2>[[item.healthLevel]]</h2>
+            <template is="dom-repeat" items="[[item.players]]">
+              <span style="color:[[item.color]]">[[item.name]]</span>
+            </template>
+          </div>
+        </template>
+      </div>
+      <div id="areaBoard">
+        <template is="dom-repeat" items="[[area]]">
+          <div>
+            <h2>[[item.areaName]]</h2>
+            <template is="dom-repeat" items="[[item.players]]">
+              <span "[[item.color]]">[[item.name]]</span>
+            </template>
+          </div>
+        </template>
+      </div>
     </div>
   </template>
 

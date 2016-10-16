@@ -7,17 +7,15 @@ const CHARACTERS = {
     health: 11,
     faction: "Neutral",
     winCondition: (player, state) => {
-      const catherineDead = false;
-      const othersDead = false;
-      for (let player of state.players) {
-        if (player.name === "Catherine") {
-            catherineDead = player.dead;
-        } else {
-          othersDead = player.dead;
+      let othersDead = false;
+      for (let p of state.players) {
+        if (player !== p && p.dead) {
+          othersDead = true;
+          break;
         }
       }
 
-      return catherineDead && !othersDead;
+      return player.dead && !othersDead;
     },
   },
   "Bob": {
@@ -46,12 +44,16 @@ const dataChannelOptions = {
 
 class Server {
   constructor() {
+    this.resetState();
+    this.connections = [];
+  }
+
+  resetState() {
     this.state = {
       turn: "",
       players: [],
     };
 
-    this.connections = [];
   }
 
   genStateCommand(player) {
@@ -83,12 +85,25 @@ class Server {
 
   updateDead() {
     for (let player of this.state.players) {
-      player.dead = player.damage >= CHARACTERS[player.name].health;
+      player.dead = (player.damage >= CHARACTERS[player.name].health);
     }
+  }
+
+  updateWinners() {
+    const winners = [];
+    for (let p of this.state.players) {
+      const char = CHARACTERS[p.name];
+      if (char.winCondition(p, this.state)) {
+        winners.push(p);
+      }
+    }
+    this.state.winners = winners;
   }
 
   endTurn() {
     this.updateDead();
+    this.updateWinners();
+
     do {
       const idx = (this.currentPlayerIndex() + 1) % this.state.players.length;
       this.state.turn = this.state.players[idx].name;
