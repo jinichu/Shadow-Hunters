@@ -12,23 +12,36 @@
     #join paper-input {
       display: inline-block;
     }
+    #turns {
+      padding: 10px;
+      background-color: lightcoral;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    #turns[current] {
+      background-color: lightgreen;
+    }
   </style>
   <template>
     <template is="dom-if" if="[[started]]">
-      <p>You are: <span>[[currentPlayer]]</span>.</p>
-      <paper-button raised on-tap="reveal">Reveal</paper-button>
-
-      <template is="dom-if" if="[[isMyTurn]]">
-        <p>It's your turn!</p>
-        <template is="dom-repeat" items="[[attackable]]">
-          <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
+      <div id="turns" current$="[[isMyTurn]]">
+        <template is="dom-if" if="[[isMyTurn]]">
+          <span>It's your turn!</span>
+          <paper-button on-tap="endTurn">End Turn</paper-button>
         </template>
-        <paper-button raised on-tap="endTurn">End Turn</paper-button>
-      </template>
 
-      <template is="dom-if" if="[[!isMyTurn]]">
-        <p>It is <span>[[state.turn]]</span>'s turn.</p>
+        <template is="dom-if" if="[[!isMyTurn]]">
+          <p>It is <span>[[state.turn]]</span>'s turn.</p>
+        </template>
+      </div>
+
+      <p>You are: <span>[[currentPlayer]]</span>.</p>
+
+      <template is="dom-repeat" items="[[attackable]]">
+        <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
       </template>
+      <paper-button raised on-tap="reveal">Reveal</paper-button>
 
       <game-board state="[[state]]"></game-board>
     </template>
