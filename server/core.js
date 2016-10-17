@@ -29,7 +29,7 @@ const CHARACTERS = {
     health: 13,
     faction: "Shadow",
     winCondition: (player, state) => {
-      const shadowsWin = false;
+      let shadowsWin = false;
       for (let player of state.players){
         if (CHARACTERS[player.name].faction === "Hunter"){
           if (!player.dead){
@@ -41,6 +41,24 @@ const CHARACTERS = {
         }
       }
       return shadowsWin;
+    }
+  },
+  "George": {
+    health: 14,
+    faction: "Hunter",
+    winCondition: (player, state) => {
+      let huntersWin = false;
+      for (let player of state.players){
+        if (CHARACTERS[player.name].faction === "Shadow"){
+          if (!player.dead){
+            huntersWin = false;
+          }
+          else {
+            huntersWin = true;
+          }
+        }
+      }
+      return huntersWin;
     }
   }
 };
@@ -72,7 +90,6 @@ class Server {
       turn: "",
       players: [],
     };
-
   }
 
   genStateCommand(player) {

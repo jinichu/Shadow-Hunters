@@ -14,8 +14,19 @@
     }
   </style>
   <template>
+    <paper-dialog id="characterInfo" modal>
+      <h2>[[currentPlayer]]</h2>
+      <p>Health: </p>
+      <p>Win Condition:</p>
+      <p>Ability: </p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
     <template is="dom-if" if="[[started]]">
-      <p>You are: <span>[[currentPlayer]]</span>.</p>
+
+      <p>You are: <a on-tap="showCharacterInfo">[[currentPlayer]]</a>.</p>
+
       <paper-button raised on-tap="reveal">Reveal</paper-button>
 
       <template is="dom-if" if="[[isMyTurn]]">
@@ -79,7 +90,6 @@
 
       ready: function() {
         this.currentPlayer = "";
-
         this.started = false;
       },
 
@@ -94,6 +104,10 @@
 
       endTurn: function() {
         this.handleAction(null, "endTurn");
+      },
+
+      showCharacterInfo: function() {
+        this.$.characterInfo.open();
       },
 
       attack: function(e) {
