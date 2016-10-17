@@ -31,11 +31,18 @@ const CHARACTERS = {
     health: 13,
     faction: "Shadow",
     winCondition: (player, state) => {
+      const shadowsWin = false;
       for (let player of state.players){
         if (CHARACTERS[player.name].faction === "Hunter"){
-
+          if (!player.dead){
+            shadowsWin = false;
+          }
+          else {
+            shadowsWin = true;
+          }
         }
       }
+      return shadowsWin;
     }
   }
 };
@@ -247,9 +254,10 @@ class Server {
       const player = {
         name: char,
         damage: 0,
-        area: "Underworld Gate",
+        area: null,
         color: playerColor
       };
+      this.move(player);
       dataChannel.player = player;
       this.state.players.push(player);
       if (!this.state.turn) {
