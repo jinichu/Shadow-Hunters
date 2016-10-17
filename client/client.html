@@ -38,8 +38,10 @@
 
       <p>You are: <span>[[currentPlayer]]</span>.</p>
 
-      <template is="dom-repeat" items="[[attackable]]">
-        <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
+      <template is="dom-if" if="[[isMyTurn]]">
+        <template is="dom-repeat" items="[[attackable]]">
+          <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
+        </template>
       </template>
       <paper-button raised on-tap="reveal">Reveal</paper-button>
 
@@ -135,9 +137,12 @@
         if (!p) {
           return;
         }
+        const areaIdx = Math.floor(areaNames.indexOf(p.area)/2);
+
         const attackable = [];
         for (let p2 of this.state.players) {
-          if (p != p2 && p.area == p2.area) {
+          const areaIdx2 = Math.floor(areaNames.indexOf(p2.area)/2);
+          if (p != p2 && areaIdx == areaIdx2) {
             attackable.push(p2.name);
           }
         }
