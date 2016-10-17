@@ -5,8 +5,15 @@
 
 
 <dom-module id="main-client">
+  <style>
+    #join {
+      text-align: center;
+    }
+    #join paper-input {
+      display: inline-block;
+    }
+  </style>
   <template>
-    <h1>SH!</h1>
     <template is="dom-if" if="[[started]]">
       <p>You are: <span>[[currentPlayer]]</span>.</p>
       <paper-button raised on-tap="reveal">Reveal</paper-button>
@@ -27,27 +34,31 @@
     </template>
 
     <template is="dom-if" if="[[!started]]">
-      <h2>Join or Start a Game</h2>
-      <paper-button raised on-tap="host">Host</paper-button>
+      <div id="join">
+        <h1>SH!</h1>
+        <h2>Join or Start a Game</h2>
+        <paper-button raised on-tap="host">Host</paper-button>
 
-      <p>Enter host token:</p>
+        <br/>
 
-      <paper-input id="tokenInput"
-                   value="{{token}}"
-                   spellcheck="false"
-                   auto-validate required
-                   invalid="{{invalid}}"
-                   minlength="10" maxlength="10">
-      </paper-input>
+        <paper-input id="tokenInput"
+                     label="Enter host token"
+                     value="{{token}}"
+                     spellcheck="false"
+                     auto-validate required
+                     invalid="{{invalid}}"
+                     minlength="10" maxlength="10">
+        </paper-input>
 
-      <paper-button raised on-tap="join" disabled$="[[invalid]]">
-        JOIN
-      </paper-button>
+        <paper-button raised on-tap="join" disabled$="[[invalid]]">
+          JOIN
+        </paper-button>
 
-      <webrtc-lobby-list id="lobbyList"
-                         url="wss://fn.lc/lobby"
-                         service="sh">
-      </webrtc-lobby-list>
+        <webrtc-lobby-list id="lobbyList"
+                           url="wss://fn.lc/lobby"
+                           service="sh">
+        </webrtc-lobby-list>
+      </div>
     </template>
     <template is="dom-if" if="[[server]]">
       <p>Server ID (enter this on the clients): [[serverToken]]</p>

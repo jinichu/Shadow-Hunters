@@ -97,7 +97,7 @@ class Server {
         winners.push(p);
       }
     }
-    this.state.winners = winners;
+    this.state.winners = winners.length ? winners : null;
   }
 
   endTurn() {
