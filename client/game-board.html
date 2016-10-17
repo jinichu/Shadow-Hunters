@@ -1,4 +1,5 @@
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-dialog/paper-dialog.html">
 
 <dom-module id="game-board">
   <style>
@@ -48,6 +49,17 @@
         </div>
       </template>
     </div>
+
+    <paper-dialog id="winners" modal>
+      <h2>Winners</h2>
+      <template is="dom-repeat" items="[[state.winners]]">
+        <span "[[item.color]]">[[item.name]]</span>
+      </template>
+
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Play Again</paper-button>
+      </div>
+    </paper-dialog>
   </template>
 
   <script>
@@ -64,7 +76,14 @@
       observers: [
         'computeHealth(state.*)',
         'computeAreas(state.*)',
+        'showWinners(state.winners)',
       ],
+
+      showWinners: function() {
+        if (this.state.winners) {
+          this.$.winners.open();
+        }
+      },
 
       computeAreas: function() {
 
