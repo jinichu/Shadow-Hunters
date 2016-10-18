@@ -2,6 +2,8 @@ if (!window.RTCPeerConnection) {
   window.RTCPeerConnection = window.RTCPeerConnection || window.webkitRTCPeerConnection;
 }
 
+const COLORS = ["black", "purple", "red", "yellow", "blue", "green", "pink", "orange"];
+
 const CHARACTERS = {
   "Catherine": {
     health: 11,
@@ -14,14 +16,49 @@ const CHARACTERS = {
           break;
         }
       }
-
       return player.dead && !othersDead;
-    },
+    }
   },
   "Bob": {
     health: 11,
     faction: "Neutral",
     winCondition: (player, state) => {
+    }
+  },
+  "Vampire": {
+    health: 13,
+    faction: "Shadow",
+    winCondition: (player, state) => {
+      let shadowsWin = false;
+      for (let player of state.players){
+        if (CHARACTERS[player.name].faction === "Hunter"){
+          if (!player.dead){
+            shadowsWin = false;
+          }
+          else {
+            shadowsWin = true;
+          }
+        }
+      }
+      return shadowsWin;
+    }
+  },
+  "George": {
+    health: 14,
+    faction: "Hunter",
+    winCondition: (player, state) => {
+      let huntersWin = false;
+      for (let player of state.players){
+        if (CHARACTERS[player.name].faction === "Shadow"){
+          if (!player.dead){
+            huntersWin = false;
+          }
+          else {
+            huntersWin = true;
+          }
+        }
+      }
+      return huntersWin;
     }
   }
 };
@@ -53,7 +90,6 @@ class Server {
       turn: "",
       players: [],
     };
-
   }
 
   genStateCommand(player) {
@@ -78,6 +114,24 @@ class Server {
       const pot = potential[Math.floor(Math.random()*potential.length)];
       if (!taken[pot]) {
         player = pot;
+      }
+    }
+    return player;
+  }
+
+  pickUnusedColor() {
+    const taken = {};
+    for (let p of this.state.players) {
+      taken[p.color] = true;
+    }
+    if (this.state.players.length >= COLORS.length) {
+      throw "more players than characters";
+    }
+    let player = null;
+    while (!player) {
+      const potentialColor = COLORS[Math.floor(Math.random()*COLORS.length)];
+      if (!taken[potentialColor]) {
+        player = potentialColor;
       }
     }
     return player;
@@ -228,12 +282,14 @@ class Server {
       this.connections.push(dataChannel);
       console.log("server: connection open");
       const char = this.pickUnusedCharacter();
+      const playerColor = this.pickUnusedColor();
       const player = {
         name: char,
         damage: 0,
-        area: "Underworld Gate",
-        color: "red"
+        area: null,
+        color: playerColor
       };
+      this.move(player);
       dataChannel.player = player;
       this.state.players.push(player);
       if (!this.state.turn) {
