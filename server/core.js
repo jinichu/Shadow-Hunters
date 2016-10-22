@@ -17,13 +17,19 @@ const CHARACTERS = {
         }
       }
       return player.dead && !othersDead;
-    }
+    },
+    image: "client/catherine.png",
+    winConditionDescription: "Be the first one to die",
+    abilityDescription: "(Survival) Heal one point of damage per turn"
   },
   "Bob": {
     health: 11,
     faction: "Neutral",
     winCondition: (player, state) => {
-    }
+    },
+    image: "client/bob.png",
+    winConditionDescription: "Collect five items",
+    abilityDescription: "(Get Money) Instead of doing damage, you can choose to steal items"
   },
   "Vampire": {
     health: 13,
@@ -41,7 +47,10 @@ const CHARACTERS = {
         }
       }
       return shadowsWin;
-    }
+    },
+    image: "client/vampire.png",
+    winConditionDescription: "Kill all the hunters",
+    abilityDescription: "(Lifesteal) Heal two points of damage after attack succeeds"
   },
   "George": {
     health: 14,
@@ -59,7 +68,10 @@ const CHARACTERS = {
         }
       }
       return huntersWin;
-    }
+    },
+    image: "client/george.png",
+    winConditionDescription: "Kill all the shadows",
+    abilityDescription: "(Demolish) Choose someone to inflict four points of damage to"
   }
 };
 
@@ -90,6 +102,7 @@ class Server {
       turn: "",
       players: [],
     };
+
   }
 
   genStateCommand(player) {

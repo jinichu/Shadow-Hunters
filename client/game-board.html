@@ -19,6 +19,7 @@
     #areaBoard {
       display: flex;
       flex-wrap: wrap;
+      color: #DEDEDE;
     }
     #areaBoard > div {
       border: 3px solid black;
@@ -48,7 +49,7 @@
     </div>
     <div id="areaBoard">
       <template is="dom-repeat" items="[[area]]">
-        <div>
+        <div style="background-color: [[item.areaColor]]">
           <h2>[[item.areaName]]</h2>
           <template is="dom-repeat" items="[[item.players]]">
             <span style="color:[[item.color]]">[[item.name]]</span>
@@ -99,7 +100,8 @@
         for (let name of areaNames) {
           const area = {
             areaName: name,
-            players: []
+            players: [],
+            areaColor: ""
           };
           areas.push(area);
           areasMap[name] = area;
@@ -108,6 +110,14 @@
         for (let player of this.state.players){
             areasMap[player.area].players.push(player);
         }
+
+        areasMap["Hermit's Cabin"].areaColor = "#6DAD6D";
+        areasMap["Underworld Gate"].areaColor = "#C134C1";
+        areasMap["Church"].areaColor = "white";
+        areasMap["Cemetery"].areaColor = "black";
+        areasMap["Weird Woods"].areaColor = "gray";
+        areasMap["Erstwhile Altar"].areaColor = "#A05132";
+
         this.area = areas;
       },
 

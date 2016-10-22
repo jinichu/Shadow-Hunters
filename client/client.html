@@ -25,10 +25,11 @@
   </style>
   <template>
     <paper-dialog id="characterInfo" modal>
-      <h2>[[currentPlayer]]</h2>
-      <p>Health: </p>
-      <p>Win Condition:</p>
-      <p>Ability: </p>
+      <h2 style="color:[[currentPlayerColor]]">[[currentPlayer]]</h2>
+      <img src="[[character.image]]" style="width: 60%;"></img>
+      <p><b>Health:</b> [[character.health]]</p>
+      <p><b>Win Condition:</b> [[character.winConditionDescription]]</p>
+      <p><b>Ability:</b> [[character.abilityDescription]]</p>
       <div class="buttons">
         <paper-button dialog-confirm autofocus>Close</paper-button>
       </div>
@@ -45,7 +46,7 @@
         </template>
       </div>
 
-      <p>You are: <a on-tap="showCharacterInfo">[[currentPlayer]]</a>.</p>
+      <p>You are: <a style="color:[[currentPlayerColor]]" on-tap="showCharacterInfo">[[currentPlayer]]</a>.</p>
       <paper-button raised on-tap="reveal">Reveal</paper-button>
       <template is="dom-if" if="[[isMyTurn]]">
         <template is="dom-repeat" items="[[attackable]]">
@@ -101,7 +102,6 @@
       is: 'main-client',
 
       ready: function() {
-        this.currentPlayer = "";
         this.started = false;
       },
 
@@ -116,6 +116,10 @@
 
       endTurn: function() {
         this.handleAction(null, "endTurn");
+      },
+
+      healthOf: function(currentPlayer) {
+        return CHARACTERS[currentPlayer].health;
       },
 
       showCharacterInfo: function() {
@@ -214,6 +218,8 @@
           if (data.op === "state") {
             this.state = data.state;
             this.currentPlayer = data.player.name;
+            this.currentPlayerColor = data.player.color;
+            this.character = CHARACTERS[data.player.name];
           }
         };
 
