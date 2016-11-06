@@ -47,12 +47,23 @@
         </div>
       </template>
     </div>
+    <paper-dialog id="characterInfo" modal>
+      <h2>[[characterName]]</h2>
+      <img src="[[characterImg]]" style="width: 60%;"></img>
+      <p><b>Health: </b>[[characterHealth]]</p>
+      <p><b>Faction: </b>[[characterFaction]]</p>
+      <p><b>Win Condition: </b>[[characterWinCond]]</p>
+      <p><b>Ability: </b>[[characterAbility]]</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
     <div id="areaBoard">
       <template is="dom-repeat" items="[[area]]">
         <div style="background-color: [[item.areaColor]]">
           <h2>[[item.areaName]]</h2>
           <template is="dom-repeat" items="[[item.players]]">
-            <span style="color:[[item.color]]">[[item.name]]</span>
+            <a style="color:[[item.color]]" on-tap="showCharacterInfo">[[item.name]]</a></p>
           </template>
         </div>
       </template>
@@ -91,6 +102,16 @@
         if (this.state.winners) {
           this.$.winners.open();
         }
+      },
+
+      showCharacterInfo: function(e) {
+        this.characterName = e.model.item.name;
+        this.characterHealth = CHARACTERS[e.model.item.name].health;
+        this.characterFaction = CHARACTERS[e.model.item.name].faction;
+        this.characterAbility = CHARACTERS[e.model.item.name].abilityDescription;
+        this.characterWinCond = CHARACTERS[e.model.item.name].winConditionDescription;
+        this.characterImg = CHARACTERS[e.model.item.name].image;
+        this.$.characterInfo.open();
       },
 
       computeAreas: function() {

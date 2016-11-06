@@ -300,7 +300,8 @@ class Server {
         name: char,
         damage: 0,
         area: null,
-        color: playerColor
+        color: playerColor,
+        isRevealed: false,
       };
       this.move(player);
       dataChannel.player = player;
