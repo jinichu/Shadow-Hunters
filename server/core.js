@@ -280,6 +280,9 @@ class Server {
         if (data.action === "endTurn") {
           this.endTurn();
         }
+      } else if (data.op === "reveal") {
+        this.currentPlayer().isRevealed = true;
+        this.broadcastState();
       } else if (data.op === "attack") {
         const p = this.currentPlayer(data.player);
         p.damage += Math.abs(this.rollDie(6)-this.rollDie(4));
@@ -301,7 +304,7 @@ class Server {
         damage: 0,
         area: null,
         color: playerColor,
-        isRevealed: false,
+        isRevealed: false
       };
       this.move(player);
       dataChannel.player = player;

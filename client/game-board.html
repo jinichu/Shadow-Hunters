@@ -16,6 +16,16 @@
     #player {
       color: red;
     }
+    #cards {
+      display: flex;
+      flex-wrap: wrap;
+    }
+    #cards > div {
+      border: 1px solid black;
+      margin: 16px;
+      padding: 5px;
+      display: inline-block;
+    }
     #areaBoard {
       display: flex;
       flex-wrap: wrap;
@@ -68,6 +78,11 @@
         </div>
       </template>
     </div>
+    <div id ="cards">
+      <template is="dom-repeat" items="[[cards]]">
+        <h2>[[card]]</h2>
+      </template>
+    </div>
 
     <paper-dialog id="winners" modal>
       <h2>Winners</h2>
@@ -96,6 +111,7 @@
         'computeHealth(state.*)',
         'computeAreas(state.*)',
         'showWinners(state.winners)',
+        'getCards(state.*)',
       ],
 
       showWinners: function() {
@@ -105,13 +121,50 @@
       },
 
       showCharacterInfo: function(e) {
-        this.characterName = e.model.item.name;
-        this.characterHealth = CHARACTERS[e.model.item.name].health;
-        this.characterFaction = CHARACTERS[e.model.item.name].faction;
-        this.characterAbility = CHARACTERS[e.model.item.name].abilityDescription;
-        this.characterWinCond = CHARACTERS[e.model.item.name].winConditionDescription;
-        this.characterImg = CHARACTERS[e.model.item.name].image;
-        this.$.characterInfo.open();
+        if (e.model.item.isRevealed){
+          this.characterName = e.model.item.name;
+          this.characterHealth = CHARACTERS[e.model.item.name].health;
+          this.characterFaction = CHARACTERS[e.model.item.name].faction;
+          this.characterAbility = CHARACTERS[e.model.item.name].abilityDescription;
+          this.characterWinCond = CHARACTERS[e.model.item.name].winConditionDescription;
+          this.characterImg = CHARACTERS[e.model.item.name].image;
+          this.$.characterInfo.open();
+        }
+      },
+
+      getCards: function() {
+        const CARDS = {
+          "Green": {
+            1: "I bet you are a shadow!",
+            2: "I bet you are a hunter!"
+          },
+          "Black": {
+            1: {
+              Name: "Moody Goblin",
+              Type: "Single use",
+              Description: "Steal an equipment"
+            },
+            2: {
+              Name: "Cursed Sword Masamune",
+              Type: "Equipment",
+              Description: "Roll a 4-sided die"
+            }
+          },
+          "White": {
+            1: {
+              Name: "Holy Robe"
+              Type: "Equipment"
+              Description: "Take one less damage and deal one less damage"
+            },
+            2: {
+              Name: "Holy Water"
+              Type: "Single use"
+              Description: "Heal two points of damage"
+            }
+          }
+        };
+
+        this.cards = CARDS;
       },
 
       computeAreas: function() {

@@ -141,7 +141,7 @@
       },
 
       reveal: function() {
-        this.handleAction(null, "reveal");
+        this.conn.sendJSON({op: "reveal", player: this.currentPlayer});
       },
 
       handleAction: function(e, detail) {
