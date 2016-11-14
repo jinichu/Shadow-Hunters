@@ -54,6 +54,9 @@
           <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
         </template>
       </template>
+      <paper-button raised on-tap="greenCard">Pick up a green card</paper-button>
+      <paper-button raised on-tap="whiteCard">Pick up a white card</paper-button>
+      <paper-button raised on-tap="blackCard">Pick up a black card</paper-button>
 
       <game-board state="[[state]]"></game-board>
     </template>
@@ -142,6 +145,18 @@
 
       reveal: function() {
         this.conn.sendJSON({op: "reveal", player: this.currentPlayer});
+      },
+
+      greenCard: function() {
+        this.conn.sendJSON({op: "greenCard", player: this.currentPlayer});
+      },
+
+      whiteCard: function() {
+        this.conn.sendJSON({op: "whiteCard", player: this.currentPlayer});
+      },
+
+      blackCard: function() {
+        this.conn.sendJSON({op: "blackCard", player: this.currentPlayer});
       },
 
       handleAction: function(e, detail) {

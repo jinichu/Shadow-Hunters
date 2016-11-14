@@ -16,16 +16,6 @@
     #player {
       color: red;
     }
-    #cards {
-      display: flex;
-      flex-wrap: wrap;
-    }
-    #cards > div {
-      border: 1px solid black;
-      margin: 16px;
-      padding: 5px;
-      display: inline-block;
-    }
     #areaBoard {
       display: flex;
       flex-wrap: wrap;
@@ -68,6 +58,14 @@
         <paper-button dialog-confirm autofocus>Close</paper-button>
       </div>
     </paper-dialog>
+    <paper-dialog id="cardInfo" modal>
+      <p>[[state.card.name]]</p>
+      <p>[[state.card.type]]</p>
+      <p>[[state.card.effect]]</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
     <div id="areaBoard">
       <template is="dom-repeat" items="[[area]]">
         <div style="background-color: [[item.areaColor]]">
@@ -78,12 +76,6 @@
         </div>
       </template>
     </div>
-    <div id ="cards">
-      <template is="dom-repeat" items="[[cards]]">
-        <h2>[[card]]</h2>
-      </template>
-    </div>
-
     <paper-dialog id="winners" modal>
       <h2>Winners</h2>
       <template is="dom-repeat" items="[[state.winners]]">
@@ -111,12 +103,18 @@
         'computeHealth(state.*)',
         'computeAreas(state.*)',
         'showWinners(state.winners)',
-        'getCards(state.*)',
+        'showCard(state.card)',
       ],
 
       showWinners: function() {
         if (this.state.winners) {
           this.$.winners.open();
+        }
+      },
+
+      showCard: function() {
+        if (this.state.card) {
+          this.$.cardInfo.open();
         }
       },
 
@@ -130,41 +128,6 @@
           this.characterImg = CHARACTERS[e.model.item.name].image;
           this.$.characterInfo.open();
         }
-      },
-
-      getCards: function() {
-        const CARDS = {
-          "Green": {
-            1: "I bet you are a shadow!",
-            2: "I bet you are a hunter!"
-          },
-          "Black": {
-            1: {
-              Name: "Moody Goblin",
-              Type: "Single use",
-              Description: "Steal an equipment"
-            },
-            2: {
-              Name: "Cursed Sword Masamune",
-              Type: "Equipment",
-              Description: "Roll a 4-sided die"
-            }
-          },
-          "White": {
-            1: {
-              Name: "Holy Robe"
-              Type: "Equipment"
-              Description: "Take one less damage and deal one less damage"
-            },
-            2: {
-              Name: "Holy Water"
-              Type: "Single use"
-              Description: "Heal two points of damage"
-            }
-          }
-        };
-
-        this.cards = CARDS;
       },
 
       computeAreas: function() {

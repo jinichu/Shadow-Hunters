@@ -75,6 +75,19 @@ const CHARACTERS = {
   }
 };
 
+const GREENCARDS = [
+  {
+    name: "Exorcism",
+    type: null,
+    effect: "Shadows take 2 damage"
+  },
+  {
+    name: "Slap",
+    type: null,
+    effect: "Hunters take 1 damage"
+  }
+];
+
 const WEBRTC_CONFIG = {
   iceServers: [
     // STUN servers
@@ -282,6 +295,11 @@ class Server {
         }
       } else if (data.op === "reveal") {
         this.currentPlayer().isRevealed = true;
+        this.broadcastState();
+      } else if (data.op === "greenCard"){
+        const i = Math.floor(Math.random()*2);
+        this.state.card.name = GREENCARDS[i].name;
+        this.state.card.effect = GREENCARDS[i].effect;
         this.broadcastState();
       } else if (data.op === "attack") {
         const p = this.currentPlayer(data.player);
