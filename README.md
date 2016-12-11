@@ -1,2 +1,2 @@
 # Shadow Hunters
-This is a web version of Shadow Hunters.
+Based off of Z-Man Games' "Shadow Hunters".
