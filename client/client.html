@@ -35,13 +35,26 @@
         <paper-button dialog-confirm autofocus>Close</paper-button>
       </div>
     </paper-dialog>
+    <paper-dialog id="cardInfo" modal>
+      <p><b>Name:</b> [[cardName]]</p>
+      <p><b>Type:</b> [[cardType]]</p>
+      <p><b>Effect: </b>[[cardEffect]]</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
+    <paper-dialog id="cardError" modal>
+      <p>You cannot pick up this card at your current location.</p>
+      <div class="buttons">
+        <paper-button dialog-confirm autofocus>Close</paper-button>
+      </div>
+    </paper-dialog>
     <template is="dom-if" if="[[started]]">
       <div id="turns" current$="[[isMyTurn]]">
         <template is="dom-if" if="[[isMyTurn]]">
           <span>It's your turn!</span>
           <paper-button on-tap="endTurn">End Turn</paper-button>
         </template>
-
         <template is="dom-if" if="[[!isMyTurn]]">
           <p>It is <span>[[state.turn]]</span>'s turn.</p>
         </template>
@@ -54,9 +67,9 @@
           <paper-button raised on-tap="attack">Attack [[item]]</paper-button>
         </template>
       </template>
-      <paper-button raised on-tap="greenCard">Pick up a green card</paper-button>
-      <paper-button raised on-tap="whiteCard">Pick up a white card</paper-button>
-      <paper-button raised on-tap="blackCard">Pick up a black card</paper-button>
+      <paper-button raised on-tap="getGreenCard">Pick up a green card</paper-button>
+      <paper-button raised on-tap="getWhiteCard">Pick up a white card</paper-button>
+      <paper-button raised on-tap="getBlackCard">Pick up a black card</paper-button>
 
       <game-board state="[[state]]"></game-board>
     </template>
@@ -147,16 +160,43 @@
         this.conn.sendJSON({op: "reveal", player: this.currentPlayer});
       },
 
-      greenCard: function() {
-        this.conn.sendJSON({op: "greenCard", player: this.currentPlayer});
+      getGreenCard: function() {
+        if (this.currentPlayerArea == "Hermit's Cabin" || this.currentPlayerArea == "Underworld Gate"){
+          const i = Math.floor(Math.random()*2);
+          this.cardName = GREENCARDS[i].name;
+          this.cardType = GREENCARDS[i].type;
+          this.cardEffect = GREENCARDS[i].effect;
+          this.$.cardInfo.open();
+        }
+        else {
+          this.$.cardError.open();
+        }
       },
 
-      whiteCard: function() {
-        this.conn.sendJSON({op: "whiteCard", player: this.currentPlayer});
+      getWhiteCard: function() {
+        if (this.currentPlayerArea == "Church" || this.currentPlayerArea == "Underworld Gate"){
+          const i = Math.floor(Math.random()*2);
+          this.cardName = WHITECARDS[i].name;
+          this.cardType = WHITECARDS[i].type;
+          this.cardEffect = WHITECARDS[i].effect;
+          this.$.cardInfo.open();
+        }
+        else {
+          this.$.cardError.open();
+        }
       },
 
-      blackCard: function() {
-        this.conn.sendJSON({op: "blackCard", player: this.currentPlayer});
+      getBlackCard: function() {
+        if (this.currentPlayerArea == "Cemetery" || this.currentPlayerArea == "Underworld Gate"){
+          const i = Math.floor(Math.random()*2);
+          this.cardName = BLACKCARDS[i].name;
+          this.cardType = BLACKCARDS[i].type;
+          this.cardEffect = BLACKCARDS[i].effect;
+          this.$.cardInfo.open();
+        }
+        else {
+          this.$.cardError.open();
+        }
       },
 
       handleAction: function(e, detail) {
@@ -235,6 +275,7 @@
             this.state = data.state;
             this.currentPlayer = data.player.name;
             this.currentPlayerColor = data.player.color;
+            this.currentPlayerArea = data.player.area;
             this.character = CHARACTERS[data.player.name];
           }
         };
